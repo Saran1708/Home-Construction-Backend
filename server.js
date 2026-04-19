@@ -19,10 +19,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === "production";
 
-// ─── CORS ────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   "https://homeconstructionblueprint.com",
-  "http://localhost:5173", // Vite dev default
+  "https://www.homeconstructionblueprint.com", // ← add www too
+  "http://localhost:5173",
   "http://localhost:8080",
 ];
 
