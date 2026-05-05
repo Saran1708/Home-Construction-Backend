@@ -124,17 +124,59 @@ router.post("/verify", async (req, res) => {
 // GET /api/orders
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query(
+    const [ebookOrders] = await db.query(
       `SELECT order_id AS orderId, payment_id AS paymentId, customer_name AS customerName,
-              email, amount, status, method, created_at AS date
-       FROM razorpay_orders
-       ORDER BY created_at DESC`
+              email, amount, status, method, created_at AS date,
+              'ebook' AS productType, '5-Volume Ebook Bundle' AS productLabel
+       FROM razorpay_orders`
     );
-    logger.info(`Fetched ${rows.length} orders`);
-    res.json(rows);
+
+    const [serviceOrders] = await db.query(
+      `SELECT order_id AS orderId, payment_id AS paymentId, full_name AS customerName,
+              email, amount, status, 'UPI' AS method, created_at AS date,
+              CONCAT('service-', plan) AS productType,
+              CASE plan
+                WHEN 'elevation' THEN 'Elevation Makeover'
+                WHEN 'floorplan' THEN 'House Plan'
+                WHEN 'interior'  THEN 'Interior Makeover'
+              END AS productLabel
+       FROM service_orders`
+    );
+
+    // Merge and sort latest first
+    const all = [...ebookOrders, ...serviceOrders].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    logger.info(`Fetched ${all.length} total orders (${ebookOrders.length} ebook, ${serviceOrders.length} service)`);
+    res.json(all);
   } catch (err) {
     logger.error("GET /orders failed", { error: err.message });
     res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
+
+// POST /api/orders/send-email  — admin manual trigger
+router.post("/send-email", async (req, res) => {
+  const { orderId } = req.body;
+  if (!orderId) return res.status(400).json({ error: "orderId required" });
+
+  try {
+    const [rows] = await db.query(
+      `SELECT c.full_name, c.email FROM customers c WHERE c.order_id = ?`,
+      [orderId]
+    );
+    if (!rows.length) return res.status(404).json({ error: "Order not found" });
+
+    await sendEbookEmail({ to: rows[0].email, name: rows[0].full_name, orderId });
+    await db.query(`UPDATE customers SET email_sent = 1 WHERE order_id = ?`, [orderId]);
+
+    logger.info(`Manual email sent for order ${orderId}`);
+    res.json({ message: "Email sent" });
+  } catch (err) {
+    logger.error("POST /orders/send-email failed", { error: err.message });
+    res.status(500).json({ error: "Failed to send email" });
   }
 });
 

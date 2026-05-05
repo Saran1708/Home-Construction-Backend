@@ -24,6 +24,7 @@ export const sendEbookEmail = async ({ to, name, orderId }) => {
   const downloadLink = process.env.EBOOK_DRIVE_LINK;
   const fromName = process.env.MAIL_FROM_NAME;
   const fromEmail = process.env.MAIL_FROM_EMAIL;
+  const firstName = name.split(" ")[0];
 
   const html = `
 <!DOCTYPE html>
@@ -31,70 +32,64 @@ export const sendEbookEmail = async ({ to, name, orderId }) => {
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:'DM Sans',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 16px;">
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table width="540" cellpadding="0" cellspacing="0" style="max-width:540px;width:100%;">
-
-          <!-- Brand bar -->
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:4px;padding:40px 48px;">
           <tr>
-            <td style="background:#1a1a1a;border-radius:12px 12px 0 0;padding:22px 36px;border-bottom:1px solid #2e2e2e;">
-              <p style="margin:0;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#ede8df;font-weight:600;">
-                ${fromName}
-              </p>
+            <td style="padding-bottom:24px;border-bottom:1px solid #eeeeee;">
+              <p style="margin:0;font-size:13px;color:#999999;letter-spacing:1px;text-transform:uppercase;">${fromName}</p>
             </td>
           </tr>
-
-          <!-- Body -->
           <tr>
-            <td style="background:#141414;padding:44px 36px 40px;">
-              <div style="width:40px;height:2px;background:#ede8df;margin-bottom:28px;"></div>
-              <h1 style="margin:0 0 12px;font-size:26px;font-weight:600;color:#f5f5f5;line-height:1.3;">
-                Your Ebooks Are Ready! 🏗️
-              </h1>
-              <p style="margin:0 0 32px;font-size:15px;color:#8c8c8c;line-height:1.7;">
-                Hi <strong style="color:#c9bfad;">${name}</strong>, thank you for your purchase!
-                Your Home Construction Blueprint bundle is ready to download.
+            <td style="padding-top:32px;">
+              <p style="margin:0 0 20px;font-size:16px;color:#222222;line-height:1.7;">Hi ${firstName},</p>
+              <p style="margin:0 0 20px;font-size:16px;color:#222222;line-height:1.7;">
+                Thank you for your purchase. Your Home Construction Blueprint ebook bundle is ready &mdash; you can download it using the link below.
               </p>
-
-              <!-- Download Button -->
-              <a href="${downloadLink}"
-                 style="display:inline-block;padding:14px 32px;background:#ede8df;color:#0a0a0a;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1.5px;border-radius:6px;text-transform:uppercase;">
-                📥 Download Your Ebooks &rarr;
-              </a>
-
-              <!-- Ebook list -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+              <p style="margin:0 0 28px;">
+                <a href="${downloadLink}" style="display:inline-block;padding:12px 28px;background:#1a1a1a;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;border-radius:4px;">
+                  Download Your Ebooks
+                </a>
+              </p>
+              <p style="margin:0 0 8px;font-size:15px;color:#444444;line-height:1.7;">Your bundle includes:</p>
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                ${[
+                  "RCC &amp; Foundation Guide",
+                  "Brickwork &amp; Plastering",
+                  "Plumbing &amp; Water Systems",
+                  "Tile &amp; Granite Selection Guide",
+                  "Contractor Agreement &amp; Payment Terms"
+                ].map(book => `
                 <tr>
-                  <td style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:10px;padding:24px;">
-                    <p style="margin:0 0 14px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#8c8c8c;font-weight:500;">
-                      What's included
-                    </p>
-                    ${["RCC & Foundation Guide","Brickwork & Plastering","Plumbing & Water Systems","Tile & Granite Selection Guide","Contractor Agreement & Payment Terms"].map(b => `<p style="margin:0 0 8px;font-size:14px;color:#c9bfad;">✅ &nbsp;${b}</p>`).join("")}
+                  <td style="padding:4px 0;font-size:15px;color:#444444;line-height:1.7;">
+                    &mdash;&nbsp;${book}
                   </td>
-                </tr>
+                </tr>`).join("")}
               </table>
-
-              <p style="margin:28px 0 4px;font-size:12px;color:#8c8c8c;">Order ID:</p>
-              <p style="margin:0 0 24px;font-size:13px;font-family:monospace;color:#ede8df;">${orderId}</p>
-              <p style="margin:0;font-size:13px;color:#8c8c8c;line-height:1.6;">
-                Having trouble downloading? Just reply to this email and we will sort it out.
+              <p style="margin:0 0 20px;font-size:15px;color:#444444;line-height:1.7;">
+                If you have any trouble accessing the files, just reply to this email and I'll help you out.
+              </p>
+              <p style="margin:0 0 32px;font-size:15px;color:#444444;line-height:1.7;">
+                Thank you again for your order.
+              </p>
+              <p style="margin:0;font-size:15px;color:#222222;line-height:1.7;">
+                Warm regards,<br/>
+                <strong>${fromName}</strong><br/>
+                <span style="color:#888888;font-size:13px;">${fromEmail}</span>
               </p>
             </td>
           </tr>
-
-          <!-- Footer -->
           <tr>
-            <td style="background:#1a1a1a;border-radius:0 0 12px 12px;padding:24px 36px;text-align:center;border-top:1px solid #2e2e2e;">
-              <p style="margin:0;font-size:12px;color:#8c8c8c;line-height:1.6;">
-                © ${new Date().getFullYear()} ${fromName}. All rights reserved.
+            <td style="padding-top:32px;border-top:1px solid #eeeeee;margin-top:32px;">
+              <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+                Order ID: ${orderId}<br/>
+                &copy; ${new Date().getFullYear()} ${fromName}. All rights reserved.
               </p>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -105,9 +100,9 @@ export const sendEbookEmail = async ({ to, name, orderId }) => {
   await getTransporter().sendMail({
     from: `"${fromName}" <${fromEmail}>`,
     to: `"${name}" <${to}>`,
-    subject: "Your Home Construction Blueprint Ebooks Are Ready!",
+    subject: "Your Home Construction Blueprint Ebooks",
     html,
-    text: `Hi ${name}, your ebook bundle is ready! Download here: ${downloadLink} | Order ID: ${orderId}`,
+    text: `Hi ${firstName},\n\nThank you for your purchase. Your Home Construction Blueprint ebook bundle is ready to download.\n\nDownload link: ${downloadLink}\n\nYour bundle includes:\n- RCC & Foundation Guide\n- Brickwork & Plastering\n- Plumbing & Water Systems\n- Tile & Granite Selection Guide\n- Contractor Agreement & Payment Terms\n\nIf you have any trouble, just reply to this email.\n\nWarm regards,\n${fromName}\n\nOrder ID: ${orderId}`,
   });
 
   logger.info(`📧 Email sent to ${to} for order ${orderId}`);

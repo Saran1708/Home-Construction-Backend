@@ -21,9 +21,7 @@ export const db = {
       logger.info(`DB pool created for user: ${process.env.DB_USER}`);
     }
     const sql = typeof args[0] === "string" ? args[0] : args[0]?.sql;
-    if (process.env.NODE_ENV !== "production") {
-      logger.debug(`[SQL] ${sql?.replace(/\s+/g, " ").trim()}`);
-    }
+    // SQL logging disabled - no SQL statements in logs
     return pool.query(...args);
   },
 };

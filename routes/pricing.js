@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
       logger.warn("No pricing row found in settings table");
       return res.status(404).json({ error: "Pricing not configured" });
     }
-    logger.info("Pricing fetched", { data: rows[0] });
+    logger.info("✅ Pricing fetched");
     res.json(rows[0]);
   } catch (err) {
     logger.error("GET /pricing failed", { error: err.message });
